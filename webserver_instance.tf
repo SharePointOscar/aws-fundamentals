@@ -2,13 +2,21 @@ provider "aws" {
   region = "${var.region}"
 }
 
-
+resource "aws_eip" "default" {
+  instance = "${aws_instance.nginx_webserver.id}"
+  vpc      = true
+}
 resource "aws_instance" "nginx_webserver" {
+
   instance_type = "${var.instance_type}"
-  security_groups = ["${aws_security_group.sg_nginx.name}"]
   ami = "${lookup(var.amis, var.region)}"
-  availability_zone = "${var.availability_zone}"
+
+  # the security group
+  vpc_security_group_ids = ["${aws_security_group.sg_nginx.id}"]
   key_name = "${aws_key_pair.terraformkeypair.key_name}"
+
+  # the main VPC
+  subnet_id = "${aws_subnet.main-public-1.id}"
 
   tags {
     "Name" = "${var.nginx_name}"
@@ -42,7 +50,7 @@ resource "aws_instance" "nginx_webserver" {
     ]
   }
 
-  # Copies the custom index.html file
+  # Copy the static website directory to NGINX directory
   provisioner "file" {
     connection {
       user = "ubuntu"
@@ -51,11 +59,11 @@ resource "aws_instance" "nginx_webserver" {
       agent = false
       private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
     }
-    source      = "nginx/index.html"
-    destination = "/home/ubuntu/index.nginx-debian.html"
+    source      = "nginx/_site"
+    destination = "/home/ubuntu"
   }
 
-  # move the index.html to the NGINX root directory
+  # move the site directory to the NGINX root directory
   provisioner "remote-exec" {
     connection {
       user = "ubuntu"
@@ -65,9 +73,9 @@ resource "aws_instance" "nginx_webserver" {
       agent = false
     }
     inline = [
-      "sudo mv /home/ubuntu/index.nginx-debian.html /var/www/html/index.nginx-debian.html"
-
+      "sudo mv -v /home/ubuntu/_site/* /var/www/html/"
     ]
   }
+
 
 }

@@ -1,7 +1,7 @@
 # AWS Fundamentals   
 
 
-![AWS](https://cloudcraft.co/view/3266719c-9c40-409b-be96-70b16f1b3e34?key=wDV9TpYXYr5SSHWg6AQq6g&embed=true)
+![AWS](diagram.png)
 
 
 ## Overview

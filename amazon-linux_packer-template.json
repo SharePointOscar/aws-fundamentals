@@ -20,7 +20,19 @@
             },
             "owners": ["137112412989", "591542846629", "801119661308", "102837901569", "013907871322", "206029621532", "286198878708", "443319210888"],
             "most_recent": true
+        },
+        "launch_block_device_mappings": [
+        {
+          "device_name": "/dev/xvdf",
+          "delete_on_termination": true,
+          "volume_size": 2,
+          "volume_type": "gp2"
         }
+      ],
+      "run_tags": {
+        "Name": "@SharePointOscar - Ubuntu",
+        "Project": "sharepointoscar.com"
+      }
     }],
 
     "provisioners": [

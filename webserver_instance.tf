@@ -19,7 +19,11 @@ resource "aws_instance" "nginx_webserver" {
   subnet_id = "${aws_subnet.main-public-1.id}"
 
   tags {
-    "Name" = "${var.nginx_name}"
+    "Name" = "${var.nginx_name} - ${aws_security_group.sg_nginx.id}",
+    "Server Role" = "Web-Front End",
+    "Tier" = "Presentation Layer",
+    "Location" = "AWS Cloud",
+    "Environment" = "Production"
   }
 
   # Add the NGINX install script
@@ -27,7 +31,7 @@ resource "aws_instance" "nginx_webserver" {
     connection {
       user = "ubuntu"
       host = "${aws_instance.nginx_webserver.public_ip}"
-      timeout = "1m"
+      timeout = "5m"
       private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
       agent = false
     }
@@ -40,7 +44,7 @@ resource "aws_instance" "nginx_webserver" {
     connection {
       user = "ubuntu"
       host = "${aws_instance.nginx_webserver.public_ip}"
-      timeout = "1m"
+      timeout = "5m"
       private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
       agent = false
     }
@@ -55,25 +59,40 @@ resource "aws_instance" "nginx_webserver" {
     connection {
       user = "ubuntu"
       host = "${aws_instance.nginx_webserver.public_ip}"
-      timeout = "1m"
-      agent = false
+      timeout = "5m"
       private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
+      agent = false
     }
     source      = "nginx/_site"
     destination = "/home/ubuntu"
   }
 
+  # Copy the SSH Key to allow SSH
+  provisioner "file" {
+    connection {
+      user = "ubuntu"
+      host = "${aws_instance.nginx_webserver.public_ip}"
+      timeout = "5m"
+      private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
+      agent = false
+    }
+    source      = "/Users/sharepointoscar/.ssh/terraform.pub"
+    destination = "/home/ubuntu/.ssh/terraform.pub"
+  }
+
   # move the site directory to the NGINX root directory
+  # add ssh key to authorized_keys
   provisioner "remote-exec" {
     connection {
       user = "ubuntu"
       host = "${aws_instance.nginx_webserver.public_ip}"
-      timeout = "1m"
+      timeout = "5m"
       private_key = "${file(var.PATH_TO_PRIVATE_KEY)}"
       agent = false
     }
     inline = [
-      "sudo mv -v /home/ubuntu/_site/* /var/www/html/"
+      "sudo mv -v /home/ubuntu/_site/* /var/www/html/",
+      "cat /home/ubuntu/.ssh/terraform.pub  >> /home/ubuntu/.ssh/authorized_keys"
     ]
   }
 

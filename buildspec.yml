@@ -8,8 +8,8 @@ phases:
       - curl -qL -o packer.zip https://releases.hashicorp.com/packer/0.12.3/packer_0.12.3_linux_amd64.zip && unzip packer.zip
       - echo "Installing jq..."
       - curl -qL -o jq https://stedolan.github.io/jq/download/linux64/jq && chmod +x ./jq
-      - echo "Validating amazon-linux_packer-template.json"
-      - ./packer validate amazon-linux_packer-template.json
+      - echo "Validating amazon-linux.json"
+      - ./packer validate amazon-linux.json
   build:
     commands:
       ### HashiCorp Packer cannot currently obtain the AWS CodeBuild-assigned role and its credentials
@@ -22,7 +22,7 @@ phases:
       - aws configure set aws_secret_access_key `./jq -r '.SecretAccessKey' aws_credentials.json`
       - aws configure set aws_session_token `./jq -r '.Token' aws_credentials.json`
       - echo "Building HashiCorp Packer template, amazon-linux_packer-template.json"
-      - ./packer build amazon-linux_packer-template.json
+      - ./packer build amazon-linux.json
   post_build:
     commands:
       - echo "HashiCorp Packer build completed on `date`"

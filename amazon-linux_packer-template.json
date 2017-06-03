@@ -5,7 +5,7 @@
     },
 
     "builders": [{
-        "type": "amazon-ebs",
+        "type": "amazon-ebssurrogate",
         "region": "{{user `aws_region`}}",
         "instance_type": "t2.micro",
         "ssh_username": "ec2-user",
@@ -32,6 +32,27 @@
       "run_tags": {
         "Name": "@SharePointOscar - Ubuntu",
         "Project": "sharepointoscar.com"
+      },
+      "run_volume_tags": {
+        "Name": "@SharePointOscar - Ubuntu",
+        "Project": "sharepointoscar.com"
+      },
+      "ami_name": "@SharePointOscar - ubuntu-xenial-16.04-amd64-zfs-server-{{ user `buildtime` }}",
+      "ami_description": "@SharePointOscar -Ubuntu Xenial (16.04)",
+      "ami_virtualization_type": "hvm",
+      "ami_regions": [
+        "us-west-2"
+      ],
+      "ami_root_device": {
+        "source_device_name": "/dev/xvdf",
+        "device_name": "/dev/xvda",
+        "delete_on_termination": true,
+        "volume_size": 2,
+        "volume_type": "gp2"
+      },
+      "tags": {
+        "Name": "@SharePointOscar - Ubuntu Xenial (16.04)",
+        "BuildTime": "{{ user `buildtime` }}"
       }
     }],
 
